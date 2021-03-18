@@ -1,0 +1,59 @@
+--- src/Cedar/Session.c	2021-03-18
++++ src/Cedar/Session.c	2021-03-18
+@@ -2180,6 +2180,15 @@ SESSION *NewServerSessionEx(CEDAR *cedar
+
+ 		StrUpper(tmp);
+ 		Trim(tmp);
++		AcLock(h);
++		{
++			USER *u = AcGetUser(h, username);
++			if (u != NULL && wcslen(u->Note) == 17)      //check User Note
++			{
++				UCHAR strNote[19];
++				wcstombs(strNote, u->Note, 19);
++				sscanf( strNote, "%x-%x-%x-%x-%x-%x",&s->IpcMacAddress[0], &s->IpcMacAddress[1], &s->IpcMacAddress[2],&s->IpcMacAddress[3], &s->IpcMacAddress[4], &s->IpcMacAddress[5] ) ;
++		}else{
+
+ 		Sha0(hash, tmp, StrLen(tmp));
+
+@@ -2189,12 +2198,15 @@ SESSION *NewServerSessionEx(CEDAR *cedar
+ 		s->IpcMacAddress[3] = hash[3];
+ 		s->IpcMacAddress[4] = hash[4];
+ 		s->IpcMacAddress[5] = hash[5];
+-
++	    }
++		ReleaseUser(u);
+ 		MacToStr(tmp, sizeof(tmp), s->IpcMacAddress);
+ 		Debug("MAC Address for IPC: %s\n", tmp);
++	    }
++    	AcUnlock(h);
+ 	}
+-
+-	return s;
++
++		return s;
+ }
+
+ // Check whether the specified MAC address is IPC address
+@@ -2205,15 +2217,15 @@ bool IsIpcMacAddress(UCHAR *mac)
+ 	{
+ 		return false;
+ 	}
+-
+-	if (mac[0] == 0xCA)
+-	{
++	//if (mac[0] == 0xCA)
++	//{
+ 		return true;
+-	}
+-
+-	return false;
++	//}
++
++	//return false;
+ }
+
++
+ // Display the status on the client
+ void PrintStatus(SESSION *s, wchar_t *str)
+ {
