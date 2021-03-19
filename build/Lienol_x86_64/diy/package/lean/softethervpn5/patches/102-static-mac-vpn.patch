@@ -1,5 +1,5 @@
---- src/Cedar/Session.c	2021-03-18
-+++ src/Cedar/Session.c	2021-03-18
+--- a/src/Cedar/Session.c	2021-03-18
++++ b/src/Cedar/Session.c	2021-03-18
 @@ -2180,6 +2180,15 @@ SESSION *NewServerSessionEx(CEDAR *cedar
 
  		StrUpper(tmp);
